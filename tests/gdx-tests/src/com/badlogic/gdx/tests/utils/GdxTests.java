@@ -91,11 +91,9 @@ public class GdxTests {
 		return names;
 	}
 
-	private static Class<? extends GdxTest> forName (String name)
-	{
+	private static Class<? extends GdxTest> forName (String name) {
 		for (Class clazz : tests)
-			if (clazz.getSimpleName().equals(name))
-				return clazz;
+			if (clazz.getSimpleName().equals(name)) return clazz;
 		return null;
 	}
 

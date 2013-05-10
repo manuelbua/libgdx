@@ -19,7 +19,7 @@ import com.badlogic.gdx.tests.utils.GdxTest;
 import com.badlogic.gdx.tests.utils.OrthoCamController;
 
 public class TideMapAssetManagerTest extends GdxTest {
-	
+
 	private TiledMap map;
 	private TiledMapRenderer renderer;
 	private OrthographicCamera camera;
@@ -27,23 +27,22 @@ public class TideMapAssetManagerTest extends GdxTest {
 	private AssetManager assetManager;
 	private BitmapFont font;
 	private SpriteBatch batch;
-	
+
 	@Override
-	public void create() {		
+	public void create () {
 		float w = Gdx.graphics.getWidth();
 		float h = Gdx.graphics.getHeight();
-		
+
 		camera = new OrthographicCamera();
 		camera.setToOrtho(false, (w / h) * 10, 10);
 		camera.zoom = 2;
 		camera.update();
-		
+
 		cameraController = new OrthoCamController(camera);
 		Gdx.input.setInputProcessor(cameraController);
-	
+
 		font = new BitmapFont();
 		batch = new SpriteBatch();
-		
 
 		TideMapLoader.Parameters params = new TideMapLoader.Parameters();
 		params.textureMinFilter = TextureFilter.Linear;
@@ -59,17 +58,17 @@ public class TideMapAssetManagerTest extends GdxTest {
 	}
 
 	@Override
-	public void render() {
+	public void render () {
 		Gdx.gl.glClearColor(0.55f, 0.55f, 0.55f, 1f);
 		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
 		camera.update();
 		renderer.setView(camera);
 		renderer.render();
 		batch.begin();
-		font.draw(batch, "FPS: " + Gdx.graphics.getFramesPerSecond(), 10, 20); 
+		font.draw(batch, "FPS: " + Gdx.graphics.getFramesPerSecond(), 10, 20);
 		batch.end();
 	}
-	
+
 	@Override
 	public boolean needsGL20 () {
 		return true;
