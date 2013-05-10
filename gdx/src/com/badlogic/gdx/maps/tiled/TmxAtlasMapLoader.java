@@ -61,6 +61,11 @@ public class TmxAtlasMapLoader extends BaseTmxMapLoader<TiledMap, TmxAtlasMapLoa
 	}
 
 	@Override
+	public Parameters createParameters () {
+		return new Parameters();
+	}
+
+	@Override
 	public boolean isYUp () {
 		return this.parameters.yUp;
 	}

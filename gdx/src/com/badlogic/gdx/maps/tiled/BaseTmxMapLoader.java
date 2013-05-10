@@ -45,11 +45,13 @@ public abstract class BaseTmxMapLoader<T extends TiledMap, P extends AssetLoader
 
 	public abstract void populateWithTiles (TiledMapTileSet tileset, T map, FileHandle mapFile, FileHandle tilesetImage);
 
-	// tmx-specific
+	@Override
+	public void finishLoading (P parameters) {
+	};
 
 	/** Loads the map data, given the XML root element and an {@link ImageResolver} used to return the tileset Textures
 	 * @param root the XML root element
-	 * @param tmxFile the Filehandle of the tmx file
+	 * @param mapFile the Filehandle of the tmx file
 	 * @return the {@link TiledMap} */
 	@Override
 	public T loadTilemap (Element root, FileHandle mapFile) {
@@ -121,8 +123,8 @@ public abstract class BaseTmxMapLoader<T extends TiledMap, P extends AssetLoader
 	 * </p>
 	 * @param map the Map whose tilesets collection will be populated
 	 * @param element the XML element identifying the tileset to load
-	 * @param tmxFile the Filehandle of the tmx file */
-	protected void loadTileSet (T map, Element element, FileHandle tmxFile) {
+	 * @param mapFile the Filehandle of the tmx file */
+	private void loadTileSet (T map, Element element, FileHandle mapFile) {
 		if (element.getName().equals("tileset")) {
 			String name = element.get("name", null);
 			int firstgid = element.getIntAttribute("firstgid", 1);
@@ -137,7 +139,7 @@ public abstract class BaseTmxMapLoader<T extends TiledMap, P extends AssetLoader
 
 			FileHandle image = null;
 			if (source != null) {
-				FileHandle tsx = getRelativeFileHandle(tmxFile, source);
+				FileHandle tsx = getRelativeFileHandle(mapFile, source);
 				try {
 					element = xml.parse(tsx);
 					name = element.get("name", null);
@@ -156,7 +158,7 @@ public abstract class BaseTmxMapLoader<T extends TiledMap, P extends AssetLoader
 				imageSource = element.getChildByName("image").getAttribute("source");
 				imageWidth = element.getChildByName("image").getIntAttribute("width", 0);
 				imageHeight = element.getChildByName("image").getIntAttribute("height", 0);
-				image = getRelativeFileHandle(tmxFile, imageSource);
+				image = getRelativeFileHandle(mapFile, imageSource);
 			}
 
 			TiledMapTileSet tileset = new TiledMapTileSet();
@@ -171,7 +173,7 @@ public abstract class BaseTmxMapLoader<T extends TiledMap, P extends AssetLoader
 			props.put("margin", margin);
 			props.put("spacing", spacing);
 
-			populateWithTiles(tileset, map, tmxFile, image);
+			populateWithTiles(tileset, map, mapFile, image);
 
 			Array<Element> tileElements = element.getChildrenByName("tile");
 
@@ -197,7 +199,7 @@ public abstract class BaseTmxMapLoader<T extends TiledMap, P extends AssetLoader
 	/** Load one layer (a 'layer' tag).
 	 * @param map
 	 * @param element */
-	protected void loadTileLayer (TiledMap map, Element element) {
+	private void loadTileLayer (TiledMap map, Element element) {
 		if (element.getName().equals("layer")) {
 			String name = element.getAttribute("name", null);
 			int width = element.getIntAttribute("width", 0);
@@ -347,7 +349,7 @@ public abstract class BaseTmxMapLoader<T extends TiledMap, P extends AssetLoader
 		}
 	}
 
-	protected void loadObjectGroup (TiledMap map, Element element) {
+	private void loadObjectGroup (TiledMap map, Element element) {
 		if (element.getName().equals("objectgroup")) {
 			String name = element.getAttribute("name", null);
 			MapLayer layer = new MapLayer();
@@ -365,7 +367,7 @@ public abstract class BaseTmxMapLoader<T extends TiledMap, P extends AssetLoader
 		}
 	}
 
-	protected void loadObject (MapLayer layer, Element element) {
+	private void loadObject (MapLayer layer, Element element) {
 		if (element.getName().equals("object")) {
 			MapObject object = null;
 
@@ -428,7 +430,7 @@ public abstract class BaseTmxMapLoader<T extends TiledMap, P extends AssetLoader
 		}
 	}
 
-	protected Cell createTileLayerCell (boolean flipHorizontally, boolean flipVertically, boolean flipDiagonally) {
+	private Cell createTileLayerCell (boolean flipHorizontally, boolean flipVertically, boolean flipDiagonally) {
 		Cell cell = new Cell();
 		if (flipDiagonally) {
 			if (flipHorizontally && flipVertically) {

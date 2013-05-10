@@ -25,11 +25,6 @@ import com.badlogic.gdx.utils.XmlReader.Element;
 
 public class TmxMapLoader extends BaseTmxMapLoader<TiledMap, TmxMapLoader.Parameters> {
 
-	private final ObjectMap<String, Texture> textures = new ObjectMap<String, Texture>();
-	private AssetManager assetManager;
-	private ImageResolver resolver;
-	private Parameters parameters;
-
 	public static class Parameters extends AssetLoaderParameters<TiledMap> {
 		/** Whether to load the map for a y-up coordinate system */
 		public boolean yUp = true;
@@ -41,6 +36,11 @@ public class TmxMapLoader extends BaseTmxMapLoader<TiledMap, TmxMapLoader.Parame
 		public TextureFilter textureMagFilter = TextureFilter.Nearest;
 	}
 
+	private final ObjectMap<String, Texture> textures = new ObjectMap<String, Texture>();
+	private AssetManager assetManager;
+	private ImageResolver resolver;
+	private Parameters parameters;
+
 	public TmxMapLoader () {
 		super(new InternalFileHandleResolver());
 	}
@@ -50,7 +50,7 @@ public class TmxMapLoader extends BaseTmxMapLoader<TiledMap, TmxMapLoader.Parame
 	}
 
 	public TiledMap load (String fileName) {
-		return load(fileName, new Parameters());
+		return load(fileName, createParameters());
 	}
 
 	@Override
@@ -62,6 +62,11 @@ public class TmxMapLoader extends BaseTmxMapLoader<TiledMap, TmxMapLoader.Parame
 	@Override
 	public TiledMap createTiledMap () {
 		return new TiledMap();
+	}
+
+	@Override
+	public Parameters createParameters () {
+		return new Parameters();
 	}
 
 	@Override
@@ -85,7 +90,7 @@ public class TmxMapLoader extends BaseTmxMapLoader<TiledMap, TmxMapLoader.Parame
 	}
 
 	@Override
-	public Array<AssetDescriptor> requestDependancies (FileHandle tmxFile, Element root, Parameters parameters) {
+	public Array<AssetDescriptor> requestDependancies (FileHandle mapFile, Element root, Parameters parameters) {
 		Array<AssetDescriptor> dependencies = new Array<AssetDescriptor>();
 
 		boolean generateMipMaps = (parameters != null ? parameters.generateMipMaps : false);
@@ -97,11 +102,11 @@ public class TmxMapLoader extends BaseTmxMapLoader<TiledMap, TmxMapLoader.Parame
 		}
 
 		try {
-			for (FileHandle image : loadTilesets(root, tmxFile)) {
+			for (FileHandle image : loadTilesets(root, mapFile)) {
 				dependencies.add(new AssetDescriptor(image.path(), Texture.class, texParams));
 			}
 		} catch (IOException e) {
-			throw new GdxRuntimeException("Couldn't load tilemap '" + tmxFile.path() + "'", e);
+			throw new GdxRuntimeException("Couldn't load tilemap '" + mapFile.path() + "'", e);
 		}
 
 		return dependencies;

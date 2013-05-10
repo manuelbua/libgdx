@@ -45,8 +45,8 @@ public class TiledMapAtlasDirectLoaderTest extends GdxTest {
 		params.textureMinFilter = TextureFilter.Linear;
 		params.textureMagFilter = TextureFilter.Linear;
  
-//		map = new AtlasTiledMapLoader().load("data/maps/tiled-atlas-processed/test.tmx");
 		map = new TmxAtlasMapLoader().load("data/maps/tiled-atlas-processed/test.tmx", params);
+// map = new TmxAtlasMapLoader().load("data/maps/tiled-atlas-processed/test.tmx");
 		renderer = new OrthogonalTiledMapRenderer(map, 1f / 32f);
 	}
 

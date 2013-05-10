@@ -1,3 +1,4 @@
+
 package com.badlogic.gdx.tests;
 
 import com.badlogic.gdx.Gdx;
@@ -44,6 +45,7 @@ public class TiledMapDirectLoaderTest extends GdxTest {
 		params.textureMagFilter = TextureFilter.Linear;
 
 		map = new TmxMapLoader().load("data/maps/tiled/super-koalio/level1.tmx", params);
+// map = new TmxMapLoader().load("data/maps/tiled/super-koalio/level1.tmx");
 		renderer = new OrthogonalTiledMapRenderer(map, 1f / 32f);
 	}
 

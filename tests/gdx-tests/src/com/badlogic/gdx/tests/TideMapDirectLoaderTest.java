@@ -1,8 +1,10 @@
+
 package com.badlogic.gdx.tests;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.maps.tiled.TideMapLoader;
@@ -35,8 +37,13 @@ public class TideMapDirectLoaderTest extends GdxTest {
 	
 		font = new BitmapFont();
 		batch = new SpriteBatch();
-		
-		map = new TideMapLoader().load("data/maps/tide/Map01.tide");
+
+		TideMapLoader.Parameters params = new TideMapLoader.Parameters();
+		params.textureMinFilter = TextureFilter.Linear;
+		params.textureMagFilter = TextureFilter.Linear;
+
+		map = new TideMapLoader().load("data/maps/tide/Map01.tide", params);
+// map = new TideMapLoader().load("data/maps/tide/Map01.tide");
 		renderer = new OrthogonalTiledMapRenderer(map, 1f / 32f);
 	}
 

@@ -41,7 +41,7 @@ public abstract class BaseTiledMapLoader<T extends TiledMap, P extends AssetLoad
 
 	public T load (String fileName, P parameters) {
 		try {
-			parseParameters(parameters, null);
+			parseParameters((parameters == null ? createParameters() : parameters), null);
 
 			FileHandle mapFile = resolve(fileName);
 			root = xml.parse(mapFile);
@@ -62,7 +62,7 @@ public abstract class BaseTiledMapLoader<T extends TiledMap, P extends AssetLoad
 		map = null;
 
 		FileHandle mapFile = resolve(fileName);
-		parseParameters(parameter, manager);
+		parseParameters((parameter == null ? createParameters() : parameter), manager);
 
 		try {
 			map = loadTilemap(root, mapFile);
@@ -129,8 +129,9 @@ public abstract class BaseTiledMapLoader<T extends TiledMap, P extends AssetLoad
 
 	public abstract ObjectMap<String, ? extends Disposable> requestResources (FileHandle mapFile, Element root, P parameters);
 
-	public void finishLoading (P parameters) {
-	};
+	public abstract void finishLoading (P parameters);
 
 	public abstract T loadTilemap (Element root, FileHandle mapFile);
+
+	public abstract P createParameters ();
 }

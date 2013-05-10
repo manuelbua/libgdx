@@ -1,3 +1,4 @@
+
 package com.badlogic.gdx.tests;
 
 import com.badlogic.gdx.Gdx;
@@ -5,6 +6,7 @@ import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.assets.loaders.resolvers.InternalFileHandleResolver;
 import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.maps.tiled.TideMapLoader;
@@ -42,9 +44,15 @@ public class TideMapAssetManagerTest extends GdxTest {
 		font = new BitmapFont();
 		batch = new SpriteBatch();
 		
+
+		TideMapLoader.Parameters params = new TideMapLoader.Parameters();
+		params.textureMinFilter = TextureFilter.Linear;
+		params.textureMagFilter = TextureFilter.Linear;
+
 		assetManager = new AssetManager();
 		assetManager.setLoader(TiledMap.class, new TideMapLoader(new InternalFileHandleResolver()));
-		assetManager.load("data/maps/tide/Map01.tide", TiledMap.class);
+		assetManager.load("data/maps/tide/Map01.tide", TiledMap.class, params);
+// assetManager.load("data/maps/tide/Map01.tide", TiledMap.class);
 		assetManager.finishLoading();
 		map = assetManager.get("data/maps/tide/Map01.tide");
 		renderer = new OrthogonalTiledMapRenderer(map, 1f / 32f);
