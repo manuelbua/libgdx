@@ -23,7 +23,12 @@ import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.XmlReader.Element;
 
-public class TmxMapLoader extends TiledMapBaseLoader<TiledMap, TmxMapLoader.Parameters> {
+public class TmxMapLoader extends BaseTmxMapLoader<TiledMap, TmxMapLoader.Parameters> {
+
+	private final ObjectMap<String, Texture> textures = new ObjectMap<String, Texture>();
+	private AssetManager assetManager;
+	private ImageResolver resolver;
+	private Parameters parameters;
 
 	public static class Parameters extends AssetLoaderParameters<TiledMap> {
 		/** Whether to load the map for a y-up coordinate system */
@@ -35,11 +40,6 @@ public class TmxMapLoader extends TiledMapBaseLoader<TiledMap, TmxMapLoader.Para
 		/** The TextureFilter to use for magnification **/
 		public TextureFilter textureMagFilter = TextureFilter.Nearest;
 	}
-
-	private final ObjectMap<String, Texture> textures = new ObjectMap<String, Texture>();;
-	private boolean yUp;
-	private AssetManager assetManager;
-	private ImageResolver resolver;
 
 	public TmxMapLoader () {
 		super(new InternalFileHandleResolver());
@@ -54,8 +54,9 @@ public class TmxMapLoader extends TiledMapBaseLoader<TiledMap, TmxMapLoader.Para
 	}
 
 	@Override
-	public boolean isYUp () {
-		return yUp;
+	public void parseParameters (Parameters parameters, AssetManager assetManager) {
+		this.assetManager = assetManager;
+		this.parameters = parameters;
 	}
 
 	@Override
@@ -64,25 +65,20 @@ public class TmxMapLoader extends TiledMapBaseLoader<TiledMap, TmxMapLoader.Para
 	}
 
 	@Override
-	public void parseParameters (Parameters parameters, AssetManager assetManager) {
-		this.assetManager = assetManager;
-		if (parameters != null) {
-			yUp = parameters.yUp;
-		} else {
-			yUp = true;
-		}
+	public boolean isYUp () {
+		return this.parameters.yUp;
 	}
 
 	@Override
-	public ObjectMap<String, Texture> requestResources (FileHandle tmxFile, Element root, Parameters parameters) {
+	public ObjectMap<String, Texture> requestResources (FileHandle mapFile, Element root, Parameters parameters) {
 		try {
-			for (FileHandle textureFile : loadTilesets(root, tmxFile)) {
+			for (FileHandle textureFile : loadTilesets(root, mapFile)) {
 				Texture texture = new Texture(textureFile, parameters.generateMipMaps);
 				texture.setFilter(parameters.textureMinFilter, parameters.textureMagFilter);
 				textures.put(textureFile.path(), texture);
 			}
 		} catch (IOException e) {
-			throw new GdxRuntimeException("Couldn't load tilemap '" + tmxFile.path() + "'", e);
+			throw new GdxRuntimeException("Couldn't load tilemap '" + mapFile.path() + "'", e);
 		}
 
 		return textures;
@@ -112,7 +108,7 @@ public class TmxMapLoader extends TiledMapBaseLoader<TiledMap, TmxMapLoader.Para
 	}
 
 	@Override
-	public void populateWithTiles (TiledMapTileSet tileset, TiledMap map, FileHandle tmxFile, FileHandle tilesetImage) {
+	public void populateWithTiles (TiledMapTileSet tileset, TiledMap map, FileHandle mapFile, FileHandle tilesetImage) {
 		int tilewidth = tileset.getProperties().get("tilewidth", Integer.class);
 		int tileheight = tileset.getProperties().get("tileheight", Integer.class);
 		int spacing = tileset.getProperties().get("spacing", Integer.class);
@@ -136,7 +132,7 @@ public class TmxMapLoader extends TiledMapBaseLoader<TiledMap, TmxMapLoader.Para
 		for (int y = margin; y <= stopHeight; y += tileheight + spacing) {
 			for (int x = margin; x <= stopWidth; x += tilewidth + spacing) {
 				TextureRegion tileRegion = new TextureRegion(texture, x, y, tilewidth, tileheight);
-				if (!isYUp()) {
+				if (!parameters.yUp) {
 					tileRegion.flip(false, true);
 				}
 				TiledMapTile tile = new StaticTiledMapTile(tileRegion);
@@ -145,6 +141,8 @@ public class TmxMapLoader extends TiledMapBaseLoader<TiledMap, TmxMapLoader.Para
 			}
 		}
 	}
+
+	// private utilities
 
 	/** Loads the tilesets
 	 * @param root the root XML element
@@ -168,4 +166,5 @@ public class TmxMapLoader extends TiledMapBaseLoader<TiledMap, TmxMapLoader.Para
 		}
 		return images;
 	}
+
 }

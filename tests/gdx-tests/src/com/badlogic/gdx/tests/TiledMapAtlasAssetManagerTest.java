@@ -9,12 +9,12 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.maps.tiled.AtlasTiledMapLoader;
-import com.badlogic.gdx.maps.tiled.AtlasTiledMapLoader;
+import com.badlogic.gdx.maps.tiled.TmxAtlasMapLoader;
+import com.badlogic.gdx.maps.tiled.TmxAtlasMapLoader;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapRenderer;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
-import com.badlogic.gdx.maps.tiled.AtlasTiledMapLoader.Parameters;
+import com.badlogic.gdx.maps.tiled.TmxAtlasMapLoader.Parameters;
 import com.badlogic.gdx.maps.tiled.renderers.IsometricTiledMapRenderer;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.tests.utils.GdxTest;
@@ -46,15 +46,14 @@ public class TiledMapAtlasAssetManagerTest extends GdxTest {
 		font = new BitmapFont();
 		batch = new SpriteBatch();
 
-		AtlasTiledMapLoader.Parameters params = new AtlasTiledMapLoader.Parameters();
+		TmxAtlasMapLoader.Parameters params = new TmxAtlasMapLoader.Parameters();
 		params.forceTextureFilters = true;
 		params.textureMinFilter = TextureFilter.Linear;
 		params.textureMagFilter = TextureFilter.Linear;
 
 		assetManager = new AssetManager();
-		assetManager.setLoader(TiledMap.class, new AtlasTiledMapLoader(new InternalFileHandleResolver()));
-//		assetManager.load("data/maps/tiled-atlas-processed/test.tmx", TiledMap.class, params);
-		assetManager.load("data/maps/tiled-atlas-processed/test.tmx", TiledMap.class);
+		assetManager.setLoader(TiledMap.class, new TmxAtlasMapLoader(new InternalFileHandleResolver()));
+		assetManager.load("data/maps/tiled-atlas-processed/test.tmx", TiledMap.class, params);
 		assetManager.finishLoading();
 		map = assetManager.get("data/maps/tiled-atlas-processed/test.tmx");
 		renderer = new OrthogonalTiledMapRenderer(map, 1f / 32f);

@@ -20,7 +20,7 @@ import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.XmlReader.Element;
 
-public class AtlasTiledMapLoader extends TiledMapBaseLoader<TiledMap, AtlasTiledMapLoader.Parameters> {
+public class TmxAtlasMapLoader extends BaseTmxMapLoader<TiledMap, TmxAtlasMapLoader.Parameters> {
 
 	public static class Parameters extends AssetLoaderParameters<TiledMap> {
 		/** Whether to load the map for a y-up coordinate system */
@@ -37,18 +37,17 @@ public class AtlasTiledMapLoader extends TiledMapBaseLoader<TiledMap, AtlasTiled
 	}
 
 	private final ObjectMap<String, TextureAtlas> atlases = new ObjectMap<String, TextureAtlas>();
-	private boolean yUp;
 	private AssetManager assetManager;
 	private AtlasResolver resolver;
 	private Parameters parameters;
 
 	protected Array<Texture> texturesToFilter = new Array<Texture>();
 
-	public AtlasTiledMapLoader () {
+	public TmxAtlasMapLoader () {
 		super(new InternalFileHandleResolver());
 	}
 
-	public AtlasTiledMapLoader (FileHandleResolver resolver) {
+	public TmxAtlasMapLoader (FileHandleResolver resolver) {
 		super(resolver);
 	}
 
@@ -57,28 +56,23 @@ public class AtlasTiledMapLoader extends TiledMapBaseLoader<TiledMap, AtlasTiled
 	}
 
 	@Override
-	public boolean isYUp () {
-		return yUp;
+	public TiledMap createTiledMap () {
+		return new TiledMap();
 	}
 
 	@Override
-	public TiledMap createTiledMap () {
-		return new TiledMap();
+	public boolean isYUp () {
+		return this.parameters.yUp;
 	}
 
 	@Override
 	public void parseParameters (Parameters parameters, AssetManager assetManager) {
 		this.assetManager = assetManager;
 		this.parameters = parameters;
-		if (parameters != null) {
-			yUp = parameters.yUp;
-		} else {
-			yUp = true;
-		}
 	}
 
 	@Override
-	public Array<AssetDescriptor> requestDependancies (FileHandle tmxFile, Element root, Parameters parameters) {
+	public Array<AssetDescriptor> requestDependancies (FileHandle mapFile, Element root, Parameters parameters) {
 		Array<AssetDescriptor> dependencies = new Array<AssetDescriptor>();
 		Element properties = root.getChildByName("properties");
 		if (properties != null) {
@@ -86,26 +80,26 @@ public class AtlasTiledMapLoader extends TiledMapBaseLoader<TiledMap, AtlasTiled
 				String name = property.getAttribute("name");
 				String value = property.getAttribute("value");
 				if (name.startsWith("atlas")) {
-					FileHandle atlasHandle = getRelativeFileHandle(tmxFile, value);
+					FileHandle atlasHandle = getRelativeFileHandle(mapFile, value);
 					atlasHandle = resolve(atlasHandle.path());
 					dependencies.add(new AssetDescriptor(atlasHandle.path(), TextureAtlas.class));
 				}
 			}
 		} else {
-			throw new GdxRuntimeException("Couldn't load tilemap '" + tmxFile.path() + "', properties not found");
+			throw new GdxRuntimeException("Couldn't load tilemap '" + mapFile.path() + "', properties not found");
 		}
 
 		return dependencies;
 	}
 
 	@Override
-	public ObjectMap<String, ? extends Disposable> requestResources (FileHandle tmxFile, Element root, Parameters parameters) {
+	public ObjectMap<String, ? extends Disposable> requestResources (FileHandle mapFile, Element root, Parameters parameters) {
 		FileHandle atlasFile = null;
 
 		try {
-			atlasFile = loadAtlas(root, tmxFile);
+			atlasFile = loadAtlas(root, mapFile);
 		} catch (IOException e) {
-			throw new GdxRuntimeException("Couldn't load tileset atlas for '" + tmxFile.path() + "'");
+			throw new GdxRuntimeException("Couldn't load tileset atlas for '" + mapFile.path() + "'");
 		}
 
 		TextureAtlas atlas = new TextureAtlas(atlasFile);
@@ -147,7 +141,7 @@ public class AtlasTiledMapLoader extends TiledMapBaseLoader<TiledMap, AtlasTiled
 			if (region != null) {
 				StaticTiledMapTile tile = new StaticTiledMapTile(region);
 
-				if (!yUp) {
+				if (!parameters.yUp) {
 					region.flip(false, true);
 				}
 
@@ -163,7 +157,7 @@ public class AtlasTiledMapLoader extends TiledMapBaseLoader<TiledMap, AtlasTiled
 		setTextureFilters(this.parameters.textureMinFilter, this.parameters.textureMagFilter);
 	}
 
-	private FileHandle loadAtlas (Element root, FileHandle tmxFile) throws IOException {
+	private FileHandle loadAtlas (Element root, FileHandle mapFile) throws IOException {
 
 		Element e = root.getChildByName("properties");
 		Array<FileHandle> atlases = new Array<FileHandle>();
@@ -182,7 +176,7 @@ public class AtlasTiledMapLoader extends TiledMapBaseLoader<TiledMap, AtlasTiled
 						continue;
 					}
 
-					return getRelativeFileHandle(tmxFile, value);
+					return getRelativeFileHandle(mapFile, value);
 				}
 			}
 		}
