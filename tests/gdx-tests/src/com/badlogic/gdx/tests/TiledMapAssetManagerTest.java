@@ -5,8 +5,11 @@ import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.assets.loaders.resolvers.InternalFileHandleResolver;
 import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.maps.tiled.AtlasTiledMapLoader;
+import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapRenderer;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
@@ -40,9 +43,13 @@ public class TiledMapAssetManagerTest extends GdxTest {
 		font = new BitmapFont();
 		batch = new SpriteBatch();
 		
+		TmxMapLoader.Parameters params = new TmxMapLoader.Parameters();
+		params.textureMinFilter = TextureFilter.Linear;
+		params.textureMagFilter = TextureFilter.Linear;
+
 		assetManager = new AssetManager();
 		assetManager.setLoader(TiledMap.class, new TmxMapLoader(new InternalFileHandleResolver()));
-		assetManager.load("data/maps/tiled/isometric_grass_and_water.tmx", TiledMap.class);
+		assetManager.load("data/maps/tiled/isometric_grass_and_water.tmx", TiledMap.class, params);
 		assetManager.finishLoading();
 		map = assetManager.get("data/maps/tiled/isometric_grass_and_water.tmx");
 		renderer = new IsometricTiledMapRenderer(map, 1f / 64f);

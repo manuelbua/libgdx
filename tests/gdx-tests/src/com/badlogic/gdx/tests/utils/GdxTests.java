@@ -76,7 +76,10 @@ public class GdxTests {
 		// InternationalFontsTest.class, VorbisTest.class
 		TextButtonTest.class, TextButtonTestGL2.class, TextureBindTest.class, SortedSpriteTest.class,
 		ExternalMusicTest.class, SoftKeyboardTest.class, DirtyRenderingTest.class, YDownTest.class,
-		ScreenCaptureTest.class, BitmapFontTest.class, LabelScaleTest.class, GamepadTest.class, NetAPITest.class, TideMapAssetManagerTest.class, TideMapDirectLoaderTest.class, TiledMapAssetManagerTest.class, TiledMapBench.class,
+		ScreenCaptureTest.class, BitmapFontTest.class, LabelScaleTest.class, GamepadTest.class, NetAPITest.class, 
+		TideMapAssetManagerTest.class, TideMapDirectLoaderTest.class, 
+		TiledMapBench.class, 
+		TiledMapDirectLoaderTest.class, TiledMapAssetManagerTest.class, 
 		TiledMapAtlasDirectLoaderTest.class,TiledMapAtlasAssetManagerTest.class,
 		RunnablePostTest.class, Vector2dTest.class, SuperKoalio.class, NinePatchTest.class, HexagonalTiledMapTest.class));
 	
