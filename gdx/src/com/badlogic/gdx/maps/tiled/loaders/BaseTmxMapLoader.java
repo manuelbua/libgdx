@@ -22,9 +22,9 @@ import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTile;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
+import com.badlogic.gdx.maps.tiled.TiledMapTileLayer.Cell;
 import com.badlogic.gdx.maps.tiled.TiledMapTileSet;
 import com.badlogic.gdx.maps.tiled.TiledMapTileSets;
-import com.badlogic.gdx.maps.tiled.TiledMapTileLayer.Cell;
 import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Polyline;
 import com.badlogic.gdx.utils.Array;
@@ -127,7 +127,7 @@ public abstract class BaseTmxMapLoader<T extends TiledMap, P extends AssetLoader
 	 * @param map the Map whose tilesets collection will be populated
 	 * @param element the XML element identifying the tileset to load
 	 * @param mapFile the Filehandle of the tmx file */
-	private void loadTileSet (T map, Element element, FileHandle mapFile) {
+	protected void loadTileSet (T map, Element element, FileHandle mapFile) {
 		if (element.getName().equals("tileset")) {
 			String name = element.get("name", null);
 			int firstgid = element.getIntAttribute("firstgid", 1);
@@ -202,7 +202,7 @@ public abstract class BaseTmxMapLoader<T extends TiledMap, P extends AssetLoader
 	/** Load one layer (a 'layer' tag).
 	 * @param map
 	 * @param element */
-	private void loadTileLayer (TiledMap map, Element element) {
+	protected void loadTileLayer (TiledMap map, Element element) {
 		if (element.getName().equals("layer")) {
 			String name = element.getAttribute("name", null);
 			int width = element.getIntAttribute("width", 0);
@@ -352,7 +352,7 @@ public abstract class BaseTmxMapLoader<T extends TiledMap, P extends AssetLoader
 		}
 	}
 
-	private void loadObjectGroup (TiledMap map, Element element) {
+	protected void loadObjectGroup (TiledMap map, Element element) {
 		if (element.getName().equals("objectgroup")) {
 			String name = element.getAttribute("name", null);
 			MapLayer layer = new MapLayer();
@@ -370,7 +370,7 @@ public abstract class BaseTmxMapLoader<T extends TiledMap, P extends AssetLoader
 		}
 	}
 
-	private void loadObject (MapLayer layer, Element element) {
+	protected void loadObject (MapLayer layer, Element element) {
 		if (element.getName().equals("object")) {
 			MapObject object = null;
 
@@ -433,7 +433,7 @@ public abstract class BaseTmxMapLoader<T extends TiledMap, P extends AssetLoader
 		}
 	}
 
-	private Cell createTileLayerCell (boolean flipHorizontally, boolean flipVertically, boolean flipDiagonally) {
+	protected Cell createTileLayerCell (boolean flipHorizontally, boolean flipVertically, boolean flipDiagonally) {
 		Cell cell = new Cell();
 		if (flipDiagonally) {
 			if (flipHorizontally && flipVertically) {
