@@ -28,10 +28,13 @@ public class TmxMapLoader extends BaseTmxMapLoader<TiledMap, TmxMapLoader.Parame
 	public static class Parameters extends AssetLoaderParameters<TiledMap> {
 		/** Whether to load the map for a y-up coordinate system */
 		public boolean yUp = true;
+
 		/** generate mipmaps? **/
 		public boolean generateMipMaps = false;
+
 		/** The TextureFilter to use for minification **/
 		public TextureFilter textureMinFilter = TextureFilter.Nearest;
+
 		/** The TextureFilter to use for magnification **/
 		public TextureFilter textureMagFilter = TextureFilter.Nearest;
 	}
@@ -50,11 +53,11 @@ public class TmxMapLoader extends BaseTmxMapLoader<TiledMap, TmxMapLoader.Parame
 	}
 
 	public TiledMap load (String fileName) {
-		return load(fileName, createParameters());
+		return load(fileName, createDefaultParameters());
 	}
 
 	@Override
-	public void parseParameters (Parameters parameters, AssetManager assetManager) {
+	public void loadParameters (Parameters parameters, AssetManager assetManager) {
 		this.assetManager = assetManager;
 		this.parameters = parameters;
 	}
@@ -65,7 +68,7 @@ public class TmxMapLoader extends BaseTmxMapLoader<TiledMap, TmxMapLoader.Parame
 	}
 
 	@Override
-	public Parameters createParameters () {
+	public Parameters createDefaultParameters () {
 		return new Parameters();
 	}
 
@@ -90,7 +93,7 @@ public class TmxMapLoader extends BaseTmxMapLoader<TiledMap, TmxMapLoader.Parame
 	}
 
 	@Override
-	public Array<AssetDescriptor> requestDependancies (FileHandle mapFile, Element root, Parameters parameters) {
+	public Array<AssetDescriptor> requestDependencies (FileHandle mapFile, Element root, Parameters parameters) {
 		Array<AssetDescriptor> dependencies = new Array<AssetDescriptor>();
 
 		boolean generateMipMaps = (parameters != null ? parameters.generateMipMaps : false);
@@ -147,25 +150,29 @@ public class TmxMapLoader extends BaseTmxMapLoader<TiledMap, TmxMapLoader.Parame
 		}
 	}
 
+	@Override
+	public void finishLoading (Parameters parameters) {
+	}
+
 	// private utilities
 
 	/** Loads the tilesets
 	 * @param root the root XML element
 	 * @return a list of filenames for images containing tiles
 	 * @throws IOException */
-	private Array<FileHandle> loadTilesets (Element root, FileHandle tmxFile) throws IOException {
+	private Array<FileHandle> loadTilesets (Element root, FileHandle mapFile) throws IOException {
 		Array<FileHandle> images = new Array<FileHandle>();
 		for (Element tileset : root.getChildrenByName("tileset")) {
 			String source = tileset.getAttribute("source", null);
 			FileHandle image = null;
 			if (source != null) {
-				FileHandle tsx = getRelativeFileHandle(tmxFile, source);
+				FileHandle tsx = getRelativeFileHandle(mapFile, source);
 				tileset = xml.parse(tsx);
 				String imageSource = tileset.getChildByName("image").getAttribute("source");
 				image = getRelativeFileHandle(tsx, imageSource);
 			} else {
 				String imageSource = tileset.getChildByName("image").getAttribute("source");
-				image = getRelativeFileHandle(tmxFile, imageSource);
+				image = getRelativeFileHandle(mapFile, imageSource);
 			}
 			images.add(image);
 		}

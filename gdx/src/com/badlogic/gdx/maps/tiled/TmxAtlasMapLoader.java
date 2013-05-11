@@ -61,7 +61,7 @@ public class TmxAtlasMapLoader extends BaseTmxMapLoader<TiledMap, TmxAtlasMapLoa
 	}
 
 	@Override
-	public Parameters createParameters () {
+	public Parameters createDefaultParameters () {
 		return new Parameters();
 	}
 
@@ -71,13 +71,13 @@ public class TmxAtlasMapLoader extends BaseTmxMapLoader<TiledMap, TmxAtlasMapLoa
 	}
 
 	@Override
-	public void parseParameters (Parameters parameters, AssetManager assetManager) {
+	public void loadParameters (Parameters parameters, AssetManager assetManager) {
 		this.assetManager = assetManager;
 		this.parameters = parameters;
 	}
 
 	@Override
-	public Array<AssetDescriptor> requestDependancies (FileHandle mapFile, Element root, Parameters parameters) {
+	public Array<AssetDescriptor> requestDependencies (FileHandle mapFile, Element root, Parameters parameters) {
 		Array<AssetDescriptor> dependencies = new Array<AssetDescriptor>();
 		Element properties = root.getChildByName("properties");
 		if (properties != null) {
@@ -114,7 +114,7 @@ public class TmxAtlasMapLoader extends BaseTmxMapLoader<TiledMap, TmxAtlasMapLoa
 	}
 
 	@Override
-	public void populateWithTiles (TiledMapTileSet tileset, TiledMap map, FileHandle tmxFile, FileHandle tilesetImage) {
+	public void populateWithTiles (TiledMapTileSet tileset, TiledMap map, FileHandle mapFile, FileHandle tilesetImage) {
 		int firstgid = tileset.getProperties().get("firstgid", Integer.class);
 
 		if (assetManager == null) {
@@ -128,7 +128,7 @@ public class TmxAtlasMapLoader extends BaseTmxMapLoader<TiledMap, TmxAtlasMapLoa
 		TextureAtlas atlas = null;
 		String regionsName = "";
 		if (map.getProperties().containsKey("atlas")) {
-			FileHandle atlasHandle = getRelativeFileHandle(tmxFile, map.getProperties().get("atlas", String.class));
+			FileHandle atlasHandle = getRelativeFileHandle(mapFile, map.getProperties().get("atlas", String.class));
 			atlasHandle = resolve(atlasHandle.path());
 			atlas = resolver.getAtlas(atlasHandle.path());
 			regionsName = atlasHandle.nameWithoutExtension();
@@ -159,7 +159,9 @@ public class TmxAtlasMapLoader extends BaseTmxMapLoader<TiledMap, TmxAtlasMapLoa
 
 	@Override
 	public void finishLoading (Parameters parameters) {
-		setTextureFilters(this.parameters.textureMinFilter, this.parameters.textureMagFilter);
+		for (Texture texture : texturesToFilter) {
+			texture.setFilter(this.parameters.textureMinFilter, this.parameters.textureMagFilter);
+		}
 	}
 
 	private FileHandle loadAtlas (Element root, FileHandle mapFile) throws IOException {
@@ -187,12 +189,6 @@ public class TmxAtlasMapLoader extends BaseTmxMapLoader<TiledMap, TmxAtlasMapLoa
 		}
 
 		throw new IOException("Cannot find a valid atlas definition");
-	}
-
-	private void setTextureFilters (TextureFilter min, TextureFilter mag) {
-		for (Texture texture : texturesToFilter) {
-			texture.setFilter(min, mag);
-		}
 	}
 
 	private interface AtlasResolver {

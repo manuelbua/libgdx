@@ -18,13 +18,21 @@ import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.XmlReader;
 import com.badlogic.gdx.utils.XmlReader.Element;
 
+/** Encapsulates the basicdriving logic of a tiled map loader.
+ * 
+ * Format specific loaders should extends this class and implement the required callbacks.
+ * 
+ * Typically, custom, format-specific loaders are split in a partially abstract base class inheriting from {@link BaseMapLoader},
+ * whose purpose is to implement the concrete, format-specific, loading of the map, and a concrete loader class inheriting from
+ * {@link ConcreteMapLoader}, whose role is to direct and manage concrete resource loading, populate tiles and setup by
+ * configuration parameters, such as texture filtering.
+ * 
+ * The split leads to better separation, and permits loaders to perform resource loading and tile population with custom resource
+ * resolvers, such as an Atlas resolver by extending the base format-specific loader.
+ * 
+ * @author bmanuel */
 public abstract class BaseTiledMapLoader<T extends TiledMap, P extends AssetLoaderParameters<T>> extends
-	AsynchronousAssetLoader<T, P> {
-
-	protected static final int FLAG_FLIP_HORIZONTALLY = 0x80000000;
-	protected static final int FLAG_FLIP_VERTICALLY = 0x40000000;
-	protected static final int FLAG_FLIP_DIAGONALLY = 0x20000000;
-	protected static final int MASK_CLEAR = 0xE0000000;
+	AsynchronousAssetLoader<T, P> implements BaseMapLoader<T, P> {
 
 	// xml parsing
 	protected XmlReader xml = new XmlReader();
@@ -39,9 +47,14 @@ public abstract class BaseTiledMapLoader<T extends TiledMap, P extends AssetLoad
 		super(resolver);
 	}
 
+	/** Implements the synchronous, direct-loading mechanism of loading a tiled map.
+	 * 
+	 * @param fileName
+	 * @param parameters Can be null, in this case the loader defaults will be used
+	 * @return a TiledMap */
 	public T load (String fileName, P parameters) {
 		try {
-			parseParameters((parameters == null ? createParameters() : parameters), null);
+			loadParameters((parameters == null ? createDefaultParameters() : parameters), null);
 
 			FileHandle mapFile = resolve(fileName);
 			root = xml.parse(mapFile);
@@ -57,12 +70,13 @@ public abstract class BaseTiledMapLoader<T extends TiledMap, P extends AssetLoad
 		}
 	}
 
+	/** From AsynchronousAssetLoader, implements the asynchronous loading mechanism of loading a tiled map. */
 	@Override
 	public void loadAsync (AssetManager manager, String fileName, P parameter) {
 		map = null;
 
 		FileHandle mapFile = resolve(fileName);
-		parseParameters((parameter == null ? createParameters() : parameter), manager);
+		loadParameters((parameter == null ? createDefaultParameters() : parameter), manager);
 
 		try {
 			map = loadTilemap(root, mapFile);
@@ -81,15 +95,15 @@ public abstract class BaseTiledMapLoader<T extends TiledMap, P extends AssetLoad
 	public Array<AssetDescriptor> getDependencies (String fileName, P parameter) {
 		Array<AssetDescriptor> dependencies = new Array<AssetDescriptor>();
 		try {
-			FileHandle tmxFile = resolve(fileName);
-			root = xml.parse(tmxFile);
-			return requestDependancies(tmxFile, root, parameter);
+			FileHandle mapFile = resolve(fileName);
+			root = xml.parse(mapFile);
+			return requestDependencies(mapFile, root, parameter);
 		} catch (IOException e) {
 			throw new GdxRuntimeException("Couldn't load tilemap '" + fileName + "'", e);
 		}
 	}
 
-	// shared utilities
+	/** Common utilities shared across all the hierarchy */
 
 	protected void loadProperties (MapProperties properties, Element element) {
 		if (element.getName().equals("properties")) {
@@ -121,17 +135,4 @@ public abstract class BaseTiledMapLoader<T extends TiledMap, P extends AssetLoad
 	protected static int unsignedByteToInt (byte b) {
 		return (int)b & 0xFF;
 	}
-
-	/** @param assetManager can be null, means the loading is synchronous */
-	public abstract void parseParameters (P parameters, AssetManager assetManager);
-
-	public abstract Array<AssetDescriptor> requestDependancies (FileHandle tmxFile, Element root, P parameters);
-
-	public abstract ObjectMap<String, ? extends Disposable> requestResources (FileHandle mapFile, Element root, P parameters);
-
-	public abstract void finishLoading (P parameters);
-
-	public abstract T loadTilemap (Element root, FileHandle mapFile);
-
-	public abstract P createParameters ();
 }

@@ -12,7 +12,11 @@ import com.badlogic.gdx.maps.tiled.tiles.StaticTiledMapTile;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.XmlReader.Element;
 
-public abstract class BaseTideMapLoader<T extends TiledMap, P extends AssetLoaderParameters<T>> extends BaseTiledMapLoader<T, P> {
+/** Implements the Tide format base loader.
+ * 
+ * @author bmanuel */
+public abstract class BaseTideMapLoader<T extends TiledMap, P extends AssetLoaderParameters<T>> extends BaseTiledMapLoader<T, P>
+	implements ConcreteMapLoader<T> {
 
 	public BaseTideMapLoader () {
 		super(new InternalFileHandleResolver());
@@ -21,18 +25,6 @@ public abstract class BaseTideMapLoader<T extends TiledMap, P extends AssetLoade
 	public BaseTideMapLoader (FileHandleResolver resolver) {
 		super(resolver);
 	}
-
-	// callbacks
-
-	public abstract T createTiledMap ();
-
-	public abstract boolean isYUp ();
-
-	public abstract void populateWithTiles (TiledMapTileSet tileset, T map, FileHandle mapFile, FileHandle tilesetImage);
-
-	@Override
-	public void finishLoading (P parameters) {
-	};
 
 	/** Loads the map data, given the XML root element and an {@link ImageResolver} used to return the tileset Textures
 	 * @param root the XML root element

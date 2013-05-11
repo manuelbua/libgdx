@@ -51,11 +51,11 @@ public class TideMapLoader extends BaseTideMapLoader<TiledMap, TideMapLoader.Par
 	}
 
 	public TiledMap load (String fileName) {
-		return load(fileName, createParameters());
+		return load(fileName, createDefaultParameters());
 	}
 
 	@Override
-	public void parseParameters (Parameters parameters, AssetManager assetManager) {
+	public void loadParameters (Parameters parameters, AssetManager assetManager) {
 		this.assetManager = assetManager;
 		this.parameters = parameters;
 	}
@@ -66,7 +66,7 @@ public class TideMapLoader extends BaseTideMapLoader<TiledMap, TideMapLoader.Par
 	}
 
 	@Override
-	public Parameters createParameters () {
+	public Parameters createDefaultParameters () {
 		return new Parameters();
 	}
 
@@ -91,7 +91,7 @@ public class TideMapLoader extends BaseTideMapLoader<TiledMap, TideMapLoader.Par
 	}
 
 	@Override
-	public Array<AssetDescriptor> requestDependancies (FileHandle mapFile, Element root, Parameters parameters) {
+	public Array<AssetDescriptor> requestDependencies (FileHandle mapFile, Element root, Parameters parameters) {
 		Array<AssetDescriptor> dependencies = new Array<AssetDescriptor>();
 
 		boolean generateMipMaps = (parameters != null ? parameters.generateMipMaps : false);
@@ -149,6 +149,10 @@ public class TideMapLoader extends BaseTideMapLoader<TiledMap, TideMapLoader.Par
 			}
 		}
 
+	}
+
+	@Override
+	public void finishLoading (Parameters parameters) {
 	}
 
 	/** Loads the tilesets

@@ -27,7 +27,17 @@ import com.badlogic.gdx.utils.Base64Coder;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.XmlReader.Element;
 
-public abstract class BaseTmxMapLoader<T extends TiledMap, P extends AssetLoaderParameters<T>> extends BaseTiledMapLoader<T, P> {
+/** Implements the TMX format base loader.
+ * 
+ * @author bmanuel */
+public abstract class BaseTmxMapLoader<T extends TiledMap, P extends AssetLoaderParameters<T>> extends BaseTiledMapLoader<T, P>
+	implements ConcreteMapLoader<T> {
+
+	// tmx-specific constants
+	protected static final int FLAG_FLIP_HORIZONTALLY = 0x80000000;
+	protected static final int FLAG_FLIP_VERTICALLY = 0x40000000;
+	protected static final int FLAG_FLIP_DIAGONALLY = 0x20000000;
+	protected static final int MASK_CLEAR = 0xE0000000;
 
 	public BaseTmxMapLoader () {
 		super(new InternalFileHandleResolver());
@@ -36,18 +46,6 @@ public abstract class BaseTmxMapLoader<T extends TiledMap, P extends AssetLoader
 	public BaseTmxMapLoader (FileHandleResolver resolver) {
 		super(resolver);
 	}
-
-	// callbacks
-
-	public abstract T createTiledMap ();
-
-	public abstract boolean isYUp ();
-
-	public abstract void populateWithTiles (TiledMapTileSet tileset, T map, FileHandle mapFile, FileHandle tilesetImage);
-
-	@Override
-	public void finishLoading (P parameters) {
-	};
 
 	/** Loads the map data, given the XML root element and an {@link ImageResolver} used to return the tileset Textures
 	 * @param root the XML root element
@@ -100,7 +98,7 @@ public abstract class BaseTmxMapLoader<T extends TiledMap, P extends AssetLoader
 		return map;
 	}
 
-	/** Loads the specified tileset data, adding it to the collection of the specified map, given the XML element, the tmxFile and
+	/** Loads the specified tileset data, adding it to the collection of the specified map, given the XML element, the mapFile and
 	 * an {@link ImageResolver} used to retrieve the tileset Textures.
 	 * 
 	 * <p>
