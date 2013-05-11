@@ -1,7 +1,9 @@
 
-package com.badlogic.gdx.maps.tiled;
+package com.badlogic.gdx.maps.tiled.loaders;
 
 import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.maps.tiled.TiledMap;
+import com.badlogic.gdx.maps.tiled.TiledMapTileSet;
 
 /** Represents the required actions to be completed by a concrete loader implementation.
  * 

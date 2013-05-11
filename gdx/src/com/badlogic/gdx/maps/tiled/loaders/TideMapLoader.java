@@ -1,5 +1,5 @@
 
-package com.badlogic.gdx.maps.tiled;
+package com.badlogic.gdx.maps.tiled.loaders;
 
 import java.io.IOException;
 
@@ -17,6 +17,9 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.ImageResolver;
 import com.badlogic.gdx.maps.ImageResolver.AssetManagerImageResolver;
 import com.badlogic.gdx.maps.ImageResolver.DirectImageResolver;
+import com.badlogic.gdx.maps.tiled.TiledMap;
+import com.badlogic.gdx.maps.tiled.TiledMapTile;
+import com.badlogic.gdx.maps.tiled.TiledMapTileSet;
 import com.badlogic.gdx.maps.tiled.tiles.StaticTiledMapTile;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
