@@ -7,8 +7,6 @@ import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.Disposable;
-import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.XmlReader.Element;
 
 /** Represents the required actions to be completed by a format-specific base loader
@@ -39,7 +37,7 @@ public interface BaseMapLoader<T extends TiledMap, P extends AssetLoaderParamete
 	 * @param root the root document of the map, can be used to traverse the map definition and detect dependencies
 	 * @param parameters the requested loader configuration
 	 * @return the Disposable resources allocated by the loader */
-	public abstract ObjectMap<String, ? extends Disposable> requestResources (FileHandle mapFile, Element root, P parameters);
+	public abstract Array<? extends Object> requestResources (FileHandle mapFile, Element root, P parameters);
 
 	/** Called only when an <b>asynchronous</b> loading is requested, let the loader to report back of any asset it depends on for
 	 * loading the specified map file: the loader can return <b>null</b> to signal that there are no dependencies.

@@ -22,7 +22,6 @@ import com.badlogic.gdx.maps.tiled.TiledMapTile;
 import com.badlogic.gdx.maps.tiled.TiledMapTileSet;
 import com.badlogic.gdx.maps.tiled.tiles.StaticTiledMapTile;
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.XmlReader.Element;
@@ -79,7 +78,7 @@ public class TideMapLoader extends BaseTideMapLoader<TiledMap, TideMapLoader.Par
 	}
 
 	@Override
-	public ObjectMap<String, ? extends Disposable> requestResources (FileHandle mapFile, Element root, Parameters parameters) {
+	public Array<? extends Object> requestResources (FileHandle mapFile, Element root, Parameters parameters) {
 		try {
 			for (FileHandle textureFile : loadTileSheets(root, mapFile)) {
 				Texture texture = new Texture(textureFile, parameters.generateMipMaps);
@@ -90,7 +89,7 @@ public class TideMapLoader extends BaseTideMapLoader<TiledMap, TideMapLoader.Par
 			throw new GdxRuntimeException("Couldn't load tilemap '" + mapFile.path() + "'", e);
 		}
 
-		return textures;
+		return textures.values().toArray();
 	}
 
 	@Override

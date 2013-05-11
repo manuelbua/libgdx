@@ -17,7 +17,6 @@ import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileSet;
 import com.badlogic.gdx.maps.tiled.tiles.StaticTiledMapTile;
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.XmlReader.Element;
@@ -100,7 +99,7 @@ public class TmxAtlasMapLoader extends BaseTmxMapLoader<TiledMap, TmxAtlasMapLoa
 	}
 
 	@Override
-	public ObjectMap<String, ? extends Disposable> requestResources (FileHandle mapFile, Element root, Parameters parameters) {
+	public Array<? extends Object> requestResources (FileHandle mapFile, Element root, Parameters parameters) {
 		FileHandle atlasFile = null;
 
 		try {
@@ -112,7 +111,7 @@ public class TmxAtlasMapLoader extends BaseTmxMapLoader<TiledMap, TmxAtlasMapLoa
 		TextureAtlas atlas = new TextureAtlas(atlasFile);
 		atlases.put(atlasFile.path(), atlas);
 
-		return atlases;
+		return atlases.values().toArray();
 	}
 
 	@Override

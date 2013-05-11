@@ -81,7 +81,7 @@ public class TmxMapLoader extends BaseTmxMapLoader<TiledMap, TmxMapLoader.Parame
 	}
 
 	@Override
-	public ObjectMap<String, Texture> requestResources (FileHandle mapFile, Element root, Parameters parameters) {
+	public Array<? extends Object> requestResources (FileHandle mapFile, Element root, Parameters parameters) {
 		try {
 			for (FileHandle textureFile : loadTilesets(root, mapFile)) {
 				Texture texture = new Texture(textureFile, parameters.generateMipMaps);
@@ -92,7 +92,7 @@ public class TmxMapLoader extends BaseTmxMapLoader<TiledMap, TmxMapLoader.Parame
 			throw new GdxRuntimeException("Couldn't load tilemap '" + mapFile.path() + "'", e);
 		}
 
-		return textures;
+		return textures.values().toArray();
 	}
 
 	@Override

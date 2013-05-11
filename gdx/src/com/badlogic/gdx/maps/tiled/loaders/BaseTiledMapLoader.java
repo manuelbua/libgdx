@@ -13,9 +13,7 @@ import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.maps.MapProperties;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.GdxRuntimeException;
-import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.XmlReader;
 import com.badlogic.gdx.utils.XmlReader.Element;
 
@@ -59,9 +57,9 @@ public abstract class BaseTiledMapLoader<T extends TiledMap, P extends AssetLoad
 
 			FileHandle mapFile = resolve(fileName);
 			root = xml.parse(mapFile);
-			ObjectMap<String, ? extends Disposable> data = requestResources(mapFile, root, parameters);
+			Array<? extends Object> resources = requestResources(mapFile, root, parameters);
 			T map = loadTilemap(root, mapFile);
-			map.setOwnedResources(data.values().toArray());
+			map.setOwnedResources(resources);
 
 			finishLoading(parameters);
 
