@@ -56,23 +56,18 @@ public class TmxMapLoader extends BaseTmxMapLoader<TiledMap, TmxMapLoader.Parame
 	}
 
 	public TiledMap load (String fileName) {
-		return load(fileName, createDefaultParameters());
+		return load(fileName, new Parameters());
 	}
 
 	@Override
 	public void loadParameters (Parameters parameters, AssetManager assetManager) {
 		this.assetManager = assetManager;
-		this.parameters = parameters;
+		this.parameters = (parameters == null ? new Parameters() : parameters);
 	}
 
 	@Override
 	public TiledMap createTiledMap () {
 		return new TiledMap();
-	}
-
-	@Override
-	public Parameters createDefaultParameters () {
-		return new Parameters();
 	}
 
 	@Override
@@ -156,8 +151,6 @@ public class TmxMapLoader extends BaseTmxMapLoader<TiledMap, TmxMapLoader.Parame
 	@Override
 	public void finishLoading (Parameters parameters) {
 	}
-
-	// private utilities
 
 	/** Loads the tilesets
 	 * @param root the root XML element

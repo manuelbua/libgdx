@@ -62,11 +62,6 @@ public class TmxAtlasMapLoader extends BaseTmxMapLoader<TiledMap, TmxAtlasMapLoa
 	}
 
 	@Override
-	public Parameters createDefaultParameters () {
-		return new Parameters();
-	}
-
-	@Override
 	public boolean isYUp () {
 		return this.parameters.yUp;
 	}
@@ -74,7 +69,7 @@ public class TmxAtlasMapLoader extends BaseTmxMapLoader<TiledMap, TmxAtlasMapLoa
 	@Override
 	public void loadParameters (Parameters parameters, AssetManager assetManager) {
 		this.assetManager = assetManager;
-		this.parameters = parameters;
+		this.parameters = (parameters == null ? new Parameters() : parameters);
 	}
 
 	@Override

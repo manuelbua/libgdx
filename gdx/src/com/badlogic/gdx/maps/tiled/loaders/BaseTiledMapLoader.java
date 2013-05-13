@@ -9,16 +9,15 @@ import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.XmlReader.Element;
 
-/** Represents the required actions to be completed by a format-specific base loader
+/** Represents the required actions to be completed by a format-specific Tiled loader
  * 
- * Format specific loaders should implement the following callbacks so that a well-formed loading logic can be followed.
+ * Format specific loaders should implement the following callbacks.
  * 
  * The order of the callbacks is the order in which they will get called, with the exception that {@link #requestDependencies}
  * <b>OR</b> {@link #requestResources} will be called, in case of synchronous or asynchronous loading, respectively.
  * 
  * @author bmanuel */
 public interface BaseTiledMapLoader<T extends TiledMap, P extends AssetLoaderParameters<T>> {
-
 	/** Called when the loader is requested to load a map, giving a chance to a loader to perform one-time initialization, given the
 	 * loading parameters and the {@link AssetManager}, if any.
 	 * 
@@ -26,7 +25,7 @@ public interface BaseTiledMapLoader<T extends TiledMap, P extends AssetLoaderPar
 	 * asynchronous loading has been requested: this is useful for loaders to know, since a case-specific ImageResolver can be
 	 * instantiated.
 	 * 
-	 * @param parameters the requested loader configuration
+	 * @param parameters the requested loader configuration or null if the default configuration is requested
 	 * @param assetManager can be null, means the loading is synchronous */
 	public abstract void loadParameters (P parameters, AssetManager assetManager);
 
@@ -62,8 +61,9 @@ public interface BaseTiledMapLoader<T extends TiledMap, P extends AssetLoaderPar
 	 * @param parameters the requested loader configuration */
 	public abstract void finishLoading (P parameters);
 
-	/** Called when the loading mechanism request new default parameters to be constructed by the loader
-	 * 
-	 * @return a new instance of the loader default parameters */
-	public abstract P createDefaultParameters ();
+	/** Called when the loading mechanism request a concrete instance of a TiledMap object to be constructed and returned */
+	public abstract T createTiledMap ();
+
+	/** Whether or not this map is following the y-up convention */
+	public abstract boolean isYUp ();
 }

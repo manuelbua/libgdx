@@ -34,7 +34,7 @@ import com.badlogic.gdx.utils.XmlReader.Element;
 /** Implements the Tide format base loader.
  * 
  * @author bmanuel */
-public class TideMapLoader extends XmlTiledMapLoader<TiledMap, TideMapLoader.Parameters> implements ConcreteMapLoader<TiledMap> {
+public class TideMapLoader extends XmlTiledMapLoader<TiledMap, TideMapLoader.Parameters> {
 
 	public static class Parameters extends AssetLoaderParameters<TiledMap> {
 		/** Whether to load the map for a y-up coordinate system */
@@ -61,7 +61,7 @@ public class TideMapLoader extends XmlTiledMapLoader<TiledMap, TideMapLoader.Par
 	}
 
 	public TiledMap load (String fileName) {
-		return load(fileName, createDefaultParameters());
+		return load(fileName, new Parameters());
 	}
 
 	/** Loads the map data, given the XML root element and an {@link ImageResolver} used to return the tileset Textures
@@ -91,17 +91,12 @@ public class TideMapLoader extends XmlTiledMapLoader<TiledMap, TideMapLoader.Par
 	@Override
 	public void loadParameters (Parameters parameters, AssetManager assetManager) {
 		this.assetManager = assetManager;
-		this.parameters = parameters;
+		this.parameters = (parameters == null ? new Parameters() : parameters);
 	}
 
 	@Override
 	public TiledMap createTiledMap () {
 		return new TiledMap();
-	}
-
-	@Override
-	public Parameters createDefaultParameters () {
-		return new Parameters();
 	}
 
 	@Override
@@ -145,44 +140,6 @@ public class TideMapLoader extends XmlTiledMapLoader<TiledMap, TideMapLoader.Par
 		}
 
 		return dependencies;
-	}
-
-	@Override
-	public void populateWithTiles (TiledMapTileSet tileset, TiledMap map, FileHandle mapFile, FileHandle tilesetImage) {
-		int tilewidth = tileset.getProperties().get("tilewidth", Integer.class);
-		int tileheight = tileset.getProperties().get("tileheight", Integer.class);
-		int spacingX = tileset.getProperties().get("spacingX", Integer.class);
-		int spacingY = tileset.getProperties().get("spacingY", Integer.class);
-		int marginX = tileset.getProperties().get("marginX", Integer.class);
-		int marginY = tileset.getProperties().get("marginY", Integer.class);
-		int firstgid = tileset.getProperties().get("firstgid", Integer.class);
-
-		if (assetManager == null) {
-			// sync load
-			resolver = new DirectImageResolver(textures);
-		} else {
-			// async load
-			resolver = new AssetManagerImageResolver(assetManager);
-		}
-
-		TextureRegion texture = resolver.getImage(tilesetImage.path());
-		int stopWidth = texture.getRegionWidth() - tilewidth;
-		int stopHeight = texture.getRegionHeight() - tileheight;
-
-		int id = firstgid;
-
-		for (int y = marginY; y <= stopHeight; y += tileheight + spacingY) {
-			for (int x = marginX; x <= stopWidth; x += tilewidth + spacingX) {
-				TextureRegion tileRegion = new TextureRegion(texture, x, y, tilewidth, tileheight);
-				if (!parameters.yUp) {
-					tileRegion.flip(false, true);
-				}
-				TiledMapTile tile = new StaticTiledMapTile(tileRegion);
-				tile.setId(id);
-				tileset.putTile(id++, tile);
-			}
-		}
-
 	}
 
 	@Override
@@ -261,6 +218,42 @@ public class TideMapLoader extends XmlTiledMapLoader<TiledMap, TideMapLoader.Par
 			}
 
 			tilesets.addTileSet(tileset);
+		}
+	}
+
+	private void populateWithTiles (TiledMapTileSet tileset, TiledMap map, FileHandle mapFile, FileHandle tilesetImage) {
+		int tilewidth = tileset.getProperties().get("tilewidth", Integer.class);
+		int tileheight = tileset.getProperties().get("tileheight", Integer.class);
+		int spacingX = tileset.getProperties().get("spacingX", Integer.class);
+		int spacingY = tileset.getProperties().get("spacingY", Integer.class);
+		int marginX = tileset.getProperties().get("marginX", Integer.class);
+		int marginY = tileset.getProperties().get("marginY", Integer.class);
+		int firstgid = tileset.getProperties().get("firstgid", Integer.class);
+
+		if (assetManager == null) {
+			// sync load
+			resolver = new DirectImageResolver(textures);
+		} else {
+			// async load
+			resolver = new AssetManagerImageResolver(assetManager);
+		}
+
+		TextureRegion texture = resolver.getImage(tilesetImage.path());
+		int stopWidth = texture.getRegionWidth() - tilewidth;
+		int stopHeight = texture.getRegionHeight() - tileheight;
+
+		int id = firstgid;
+
+		for (int y = marginY; y <= stopHeight; y += tileheight + spacingY) {
+			for (int x = marginX; x <= stopWidth; x += tilewidth + spacingX) {
+				TextureRegion tileRegion = new TextureRegion(texture, x, y, tilewidth, tileheight);
+				if (!parameters.yUp) {
+					tileRegion.flip(false, true);
+				}
+				TiledMapTile tile = new StaticTiledMapTile(tileRegion);
+				tile.setId(id);
+				tileset.putTile(id++, tile);
+			}
 		}
 	}
 

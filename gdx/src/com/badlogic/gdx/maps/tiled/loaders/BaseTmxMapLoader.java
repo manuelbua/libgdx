@@ -35,8 +35,7 @@ import com.badlogic.gdx.utils.XmlReader.Element;
 /** Implements the TMX format base loader.
  * 
  * @author bmanuel */
-public abstract class BaseTmxMapLoader<T extends TiledMap, P extends AssetLoaderParameters<T>> extends XmlTiledMapLoader<T, P>
-	implements ConcreteMapLoader<T> {
+public abstract class BaseTmxMapLoader<T extends TiledMap, P extends AssetLoaderParameters<T>> extends XmlTiledMapLoader<T, P> {
 
 	// tmx-specific constants
 	protected static final int FLAG_FLIP_HORIZONTALLY = 0x80000000;
@@ -51,6 +50,10 @@ public abstract class BaseTmxMapLoader<T extends TiledMap, P extends AssetLoader
 	public BaseTmxMapLoader (FileHandleResolver resolver) {
 		super(resolver);
 	}
+
+	/** The implementer should populate the passed tileset with tiles: the way this happens can be specific to the type of resources
+	 * actually being used, see {@link TmxMapLoader} and {@link TmxAtlasMapLoader} for such an example. */
+	public abstract void populateWithTiles (TiledMapTileSet tileset, T map, FileHandle mapFile, FileHandle tilesetImage);
 
 	/** Loads the map data, given the XML root element and an {@link ImageResolver} used to return the tileset Textures
 	 * @param root the XML root element
