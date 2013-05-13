@@ -1,137 +1,69 @@
 
 package com.badlogic.gdx.maps.tiled.loaders;
 
-import java.io.IOException;
-import java.util.StringTokenizer;
-
 import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.assets.AssetLoaderParameters;
 import com.badlogic.gdx.assets.AssetManager;
-import com.badlogic.gdx.assets.loaders.AsynchronousAssetLoader;
-import com.badlogic.gdx.assets.loaders.FileHandleResolver;
 import com.badlogic.gdx.files.FileHandle;
-import com.badlogic.gdx.maps.MapProperties;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.GdxRuntimeException;
-import com.badlogic.gdx.utils.XmlReader;
 import com.badlogic.gdx.utils.XmlReader.Element;
 
-/** Encapsulates the basicdriving logic of a tiled map loader.
+/** Represents the required actions to be completed by a format-specific base loader
  * 
- * Format specific loaders should extends this class and implement the required callbacks.
+ * Format specific loaders should implement the following callbacks so that a well-formed loading logic can be followed.
  * 
- * Typically, custom, format-specific loaders are split in a partially abstract base class inheriting from {@link BaseMapLoader},
- * whose purpose is to implement the concrete, format-specific, loading of the map, and a concrete loader class inheriting from
- * {@link ConcreteMapLoader}, whose role is to direct and manage concrete resource loading, populate tiles and setup by
- * configuration parameters, such as texture filtering.
- * 
- * The split leads to better separation, and permits loaders to perform resource loading and tile population with custom resource
- * resolvers, such as an Atlas resolver by extending the base format-specific loader.
+ * The order of the callbacks is the order in which they will get called, with the exception that {@link #requestDependencies}
+ * <b>OR</b> {@link #requestResources} will be called, in case of synchronous or asynchronous loading, respectively.
  * 
  * @author bmanuel */
-public abstract class BaseTiledMapLoader<T extends TiledMap, P extends AssetLoaderParameters<T>> extends
-	AsynchronousAssetLoader<T, P> implements BaseMapLoader<T, P> {
+public interface BaseTiledMapLoader<T extends TiledMap, P extends AssetLoaderParameters<T>> {
 
-	// xml parsing
-	protected XmlReader xml = new XmlReader();
-	protected Element root;
-
-	// map data
-	protected int mapWidthInPixels;
-	protected int mapHeightInPixels;
-	protected T map;
-
-	public BaseTiledMapLoader (FileHandleResolver resolver) {
-		super(resolver);
-	}
-
-	/** Implements the synchronous, direct-loading mechanism of loading a tiled map.
+	/** Called when the loader is requested to load a map, giving a chance to a loader to perform one-time initialization, given the
+	 * loading parameters and the {@link AssetManager}, if any.
 	 * 
-	 * @param fileName
-	 * @param parameters Can be null, in this case the loader defaults will be used
-	 * @return a TiledMap */
-	public T load (String fileName, P parameters) {
-		try {
-			loadParameters((parameters == null ? createDefaultParameters() : parameters), null);
+	 * A synchronous loading request is recognized whenever the passed {@link AssetManager} instance is null, otherwise an
+	 * asynchronous loading has been requested: this is useful for loaders to know, since a case-specific ImageResolver can be
+	 * instantiated.
+	 * 
+	 * @param parameters the requested loader configuration
+	 * @param assetManager can be null, means the loading is synchronous */
+	public abstract void loadParameters (P parameters, AssetManager assetManager);
 
-			FileHandle mapFile = resolve(fileName);
-			root = xml.parse(mapFile);
-			Array<? extends Object> resources = requestResources(mapFile, root, parameters);
-			T map = loadTilemap(root, mapFile);
-			map.setOwnedResources(resources);
+	/** Called only when a <b>synchronous</b> loading is requested, let the loader to load and report back the resources allocated
+	 * for the specified map to be loaded.
+	 * 
+	 * @param mapFile the requested map file to load
+	 * @param root the root document of the map, can be used to traverse the map definition and detect dependencies
+	 * @param parameters the requested loader configuration
+	 * @return the Disposable resources allocated by the loader */
+	public abstract Array<? extends Object> requestResources (FileHandle mapFile, Element root, P parameters);
 
-			finishLoading(parameters);
+	/** Called only when an <b>asynchronous</b> loading is requested, let the loader to report back of any asset it depends on for
+	 * loading the specified map file: the loader can return <b>null</b> to signal that there are no dependencies.
+	 * 
+	 * @param mapFile the requested map file to load
+	 * @param root the root document of the map, can be used to traverse the map definition and detect dependencies
+	 * @param parameters the requested loader configuration
+	 * @return other assets that this asset depends on, and thus need to be loaded first, or null if there are no dependencies */
+	public abstract Array<AssetDescriptor> requestDependencies (FileHandle mapFile, Element root, P parameters);
 
-			return map;
-		} catch (IOException e) {
-			throw new GdxRuntimeException("Couldn't load tilemap '" + fileName + "'", e);
-		}
-	}
+	/** Request the loader to concretely load the specified map, given the root element and the map file: traversing the passed
+	 * document should be the preferred method, but a loader is free to implement whatever method is preferred.
+	 * 
+	 * @param root The root document of the map
+	 * @param mapFile the FileHandle to the specified map file
+	 * @return a TiledMap instance */
+	public abstract T loadTilemap (Element root, FileHandle mapFile);
 
-	/** From AsynchronousAssetLoader, implements the asynchronous loading mechanism of loading a tiled map. */
-	@Override
-	public void loadAsync (AssetManager manager, String fileName, P parameter) {
-		map = null;
+	/** Called when a TiledMap loading has complete, gives a chance to loaders to perform final cleanup or setup, the requested
+	 * loader configuration is passed along for convenience.
+	 * 
+	 * @param parameters the requested loader configuration */
+	public abstract void finishLoading (P parameters);
 
-		FileHandle mapFile = resolve(fileName);
-		loadParameters((parameter == null ? createDefaultParameters() : parameter), manager);
-
-		try {
-			map = loadTilemap(root, mapFile);
-		} catch (Exception e) {
-			throw new GdxRuntimeException("Couldn't load tilemap '" + fileName + "'", e);
-		}
-	}
-
-	@Override
-	public T loadSync (AssetManager manager, String fileName, P parameter) {
-		finishLoading(parameter);
-		return map;
-	}
-
-	@Override
-	public Array<AssetDescriptor> getDependencies (String fileName, P parameter) {
-		Array<AssetDescriptor> dependencies = new Array<AssetDescriptor>();
-		try {
-			FileHandle mapFile = resolve(fileName);
-			root = xml.parse(mapFile);
-			return requestDependencies(mapFile, root, parameter);
-		} catch (IOException e) {
-			throw new GdxRuntimeException("Couldn't load tilemap '" + fileName + "'", e);
-		}
-	}
-
-	/** Common utilities shared across all the hierarchy */
-
-	protected void loadProperties (MapProperties properties, Element element) {
-		if (element.getName().equals("properties")) {
-			for (Element property : element.getChildrenByName("property")) {
-				String name = property.getAttribute("name", null);
-				String value = property.getAttribute("value", null);
-				if (value == null) {
-					value = property.getText();
-				}
-				properties.put(name, value);
-			}
-		}
-	}
-
-	protected static FileHandle getRelativeFileHandle (FileHandle file, String path) {
-		StringTokenizer tokenizer = new StringTokenizer(path, "\\/");
-		FileHandle result = file.parent();
-		while (tokenizer.hasMoreElements()) {
-			String token = tokenizer.nextToken();
-			if (token.equals(".."))
-				result = result.parent();
-			else {
-				result = result.child(token);
-			}
-		}
-		return result;
-	}
-
-	protected static int unsignedByteToInt (byte b) {
-		return (int)b & 0xFF;
-	}
+	/** Called when the loading mechanism request new default parameters to be constructed by the loader
+	 * 
+	 * @return a new instance of the loader default parameters */
+	public abstract P createDefaultParameters ();
 }

@@ -35,7 +35,7 @@ import com.badlogic.gdx.utils.XmlReader.Element;
 /** Implements the TMX format base loader.
  * 
  * @author bmanuel */
-public abstract class BaseTmxMapLoader<T extends TiledMap, P extends AssetLoaderParameters<T>> extends BaseTiledMapLoader<T, P>
+public abstract class BaseTmxMapLoader<T extends TiledMap, P extends AssetLoaderParameters<T>> extends XmlTiledMapLoader<T, P>
 	implements ConcreteMapLoader<T> {
 
 	// tmx-specific constants
@@ -454,4 +454,16 @@ public abstract class BaseTmxMapLoader<T extends TiledMap, P extends AssetLoader
 		return cell;
 	}
 
+	protected void loadProperties (MapProperties properties, Element element) {
+		if (element.getName().equals("properties")) {
+			for (Element property : element.getChildrenByName("property")) {
+				String name = property.getAttribute("name", null);
+				String value = property.getAttribute("value", null);
+				if (value == null) {
+					value = property.getText();
+				}
+				properties.put(name, value);
+			}
+		}
+	}
 }
